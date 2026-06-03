@@ -14,7 +14,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             secretOrKey: 'my-secret-key',
         });
     }
-    // 4. Thie method is only executed if the token's signature is valid
+    // 4. This method is only executed if the token's signature is valid
     async validate(payload: any) {
         // Return the sanitised user data
         return { userId: payload.sub, email: payload.email };
