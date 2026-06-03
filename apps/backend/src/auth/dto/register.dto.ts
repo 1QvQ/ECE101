@@ -5,9 +5,9 @@ export class RegisterDto {
     @IsEmail({}, { message: 'Please provide a valid email address, e.g., example@moe.govt.nz' })
     email!: string;
 
-    // Check if it's a string and at least 6 characters long
+    // Check if it's a string and at least 8 characters long
     @IsString()
-    @MinLength(6, { message: 'Password must be at least 6 characters long for security purposes' })
+    @MinLength(8, { message: 'Password must be at least 8 characters long for security purposes' })
     password!: string;
 
     // Check if first name is a valid string
