@@ -1,30 +1,25 @@
-# Dependencies
-node_modules/
-.pnpm-store/
+# ─── DEPENDENCIES ───
+node_modules
+/apps/*/node_modules
+/packages/*/node_modules
 
-# Build outputs
-dist/
-build/
-*.tsbuildinfo
-
-# Prisma generated client
-generated/
-
-# Env
+# ─── ENVIRONMENTS ───
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
-# Logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
+# ─── PRODUCTION BUILDS ───
+dist
+/apps/*/dist
+.next
+.turbo
 
-# OS
+# ─── IDE & SYSTEM ───
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-Thumbs.db
+*.log
 
-# Editor
-.vscode/
-.idea/
-*.swp
+# ─── NESTJS SPECIFIC ───
+/apps/backend/dist
