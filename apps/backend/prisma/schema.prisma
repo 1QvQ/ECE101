@@ -1,0 +1,33 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+model Center {
+  id        String   @id @default(uuid())
+  name      String   
+  licenseNo String?  
+  users     User[]   
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String   
+  firstName      String
+  lastName       String
+  role           String   @default("TEACHER") 
+  centerId       String?  
+  center         Center?  @relation(fields: [centerId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([centerId]) 
+}

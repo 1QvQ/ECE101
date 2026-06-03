@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: ankane/pgvector:v0.5.1
+    container_name: ece_assistant_db
+    environment:
+      POSTGRES_USER: ece_admin
+      POSTGRES_PASSWORD: ece_secure_password123
+      POSTGRES_DB: ece_assistant_prod
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
