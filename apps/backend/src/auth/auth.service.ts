@@ -20,7 +20,7 @@ export class AuthService {
 
         // If user exists, throw an error
         if (existingUser) {
-            throw new ConflictException("Email already registered, please use a different email");
+            throw new ConflictException("Email already exists");
         }
 
         // Hash password
