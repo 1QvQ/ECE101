@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { apiClient } from "../api/client";
 import { AxiosError } from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -35,12 +37,18 @@ export default function Login() {
         try {
             //making the post request to the backend /auth/login endpoint
             const response = await apiClient.post('/auth/login', { email, password });
+
             //destructuring to extract the access token from the response object
+
             const { access_token } = response.data;
+
             //store the token in the browser's local storage
             localStorage.setItem('access_token', access_token);
-
             console.log("Login successful!");
+
+            // Navigate to dashboard
+            navigate("/dashboard");
+
         } catch (err) {
             if (err instanceof AxiosError) {
                 const backendMessage = err.response?.data?.message;
