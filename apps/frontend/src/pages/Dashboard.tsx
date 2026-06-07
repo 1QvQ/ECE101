@@ -1,8 +1,29 @@
+import { useEffect, useState } from 'react';
+import type { Note } from '../api/notes'
+import { notesApi } from '../api/notes'
+
 export default function Dashboard() {
+    const [notes, setNotes] = useState<Note[]>([]);
+
+    useEffect(() => {
+        const fetchNotes = async () => {
+            try {
+                const data = await notesApi.getAllNotes();
+                console.log("Notes data: ", data);
+                setNotes(data);
+            } catch (error) {
+                console.error("Failed to fetch notes: ", error);
+            }
+        }
+        fetchNotes();
+    }, []);
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <h2 className="text-center text-3xl font-extrabold text-gray-900"> Dashboard</h2>
-            <p className="mt-2 text-center text-gray-600">Welcome to your dashboard</p>
+        <div className="p-8">
+            <h1 className="text-2xl font-bold mb-4">My Knowledge Base</h1>
+            <pre className="bg-gray-100 p-4 rounded mt-4">
+                {JSON.stringify(notes, null, 2)}
+            </pre>
         </div>
-    )
+    );
 }

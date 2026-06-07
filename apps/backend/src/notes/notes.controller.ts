@@ -25,8 +25,13 @@ export class NotesController {
   }
 
   @Get()
-  findAll() {
-    return this.notesService.findAll();
+  findAll(@Request() req) {
+    const userId = req.user.sub || req.user.userId || req.user.id;
+
+    if (!userId) {
+      throw new Error("Unauthorised: Cannot find User ID");
+    }
+    return this.notesService.findAll(userId);
   }
 
   @Get(':id')

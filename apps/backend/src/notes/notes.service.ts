@@ -33,13 +33,16 @@ export class NotesService {
     })
   }
 
-
-
-
-
-
-  findAll() {
-    return `This action returns all notes`;
+  async findAll(authorId: string) {
+    return await prisma.note.findMany({
+      where: { authorId: authorId },
+      include: {
+        tags: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   findOne(id: number) {
