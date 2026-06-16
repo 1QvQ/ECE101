@@ -6,34 +6,30 @@ interface NoteCardProps {
 
 export default function NoteCard({ note }: NoteCardProps) {
     return (
-        // Card container: Glassmorphism effect (semi-transparent bg + backdrop blur)
-        <div className="group relative p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl hover:bg-white/20 hover:-translate-y-1 transition-all duration-300">
+        <div className="group relative p-6 bg-white border border-zinc-200 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between">
+            <div>
+                <div className="flex justify-between items-start gap-4 mb-3">
+                    <h3 className="text-lg font-bold text-zinc-900 leading-snug">
+                        {note.title}
+                    </h3>
 
-            <div className="flex justify-between items-start mb-4">
-                {/* Note title: Pure white for maximum readability */}
-                <h3 className="text-xl font-bold text-white leading-tight drop-shadow-sm">
-                    {note.title}
-                </h3>
+                    {!note.isPublic && (
+                        <span className="shrink-0 bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium border border-amber-200/50">
+                            Private
+                        </span>
+                    )}
+                </div>
 
-                {/* Privacy badge: Rendered only if the note is marked as private */}
-                {!note.isPublic && (
-                    <span className="bg-white/20 text-indigo-100 text-xs px-2 py-1 rounded-full font-medium border border-white/10">
-                        Private
-                    </span>
-                )}
+                <p className="text-zinc-600 text-sm leading-relaxed mb-6 line-clamp-4">
+                    {note.content}
+                </p>
             </div>
 
-            {/* Note content: Slightly dimmed text, truncated to 3 lines using line-clamp */}
-            <p className="text-indigo-100/80 mb-6 line-clamp-3 leading-relaxed">
-                {note.content}
-            </p>
-
-            {/* Tags container: Flexbox with wrap to handle multiple tags gracefully */}
-            <div className="flex flex-wrap gap-2 mt-auto">
+            <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
                 {note.tags?.map((tag) => (
                     <span
                         key={tag.id}
-                        className="bg-indigo-500/30 text-indigo-100 text-xs px-3 py-1.5 rounded-lg font-medium tracking-wide border border-indigo-400/30"
+                        className="bg-zinc-100 text-zinc-700 text-xs px-2.5 py-1 rounded-lg font-medium border border-zinc-200/50"
                     >
                         #{tag.name}
                     </span>

@@ -56,81 +56,73 @@ export default function CreateNoteModal({ isOpen, onClose, onSuccess }: CreateNo
     };
 
     return (
-        // Fixed overlay covering the entire screen with a dark blur
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-
-            {/* Glassmorphism Modal Container */}
-            <div className="relative w-full max-w-lg p-8 bg-slate-800/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
-                <h2 className="text-2xl font-bold text-white mb-6 tracking-tight">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/40 backdrop-blur-sm">
+            <div className="relative w-full max-w-lg p-8 bg-white border border-zinc-200 rounded-2xl shadow-2xl">
+                <h2 className="text-2xl font-bold text-zinc-900 mb-6 tracking-tight">
                     Record New Inspiration
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* Title Input */}
                     <div>
-                        <label className="block text-sm font-medium text-indigo-200 mb-1">Title</label>
+                        <label className="block text-sm font-semibold text-zinc-800 mb-1.5">Title</label>
                         <input
                             type="text"
                             required
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-indigo-200/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 transition-all sm:text-sm"
                             placeholder="E.g., 2026 Tech Trends"
                         />
                     </div>
 
-                    {/* Content Textarea */}
                     <div>
-                        <label className="block text-sm font-medium text-indigo-200 mb-1">Content</label>
+                        <label className="block text-sm font-semibold text-zinc-800 mb-1.5">Content</label>
                         <textarea
                             required
                             rows={4}
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-indigo-200/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+                            className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 transition-all resize-none sm:text-sm"
                             placeholder="Capture your thoughts here..."
                         />
                     </div>
 
-                    {/* Tags Input */}
                     <div>
-                        <label className="block text-sm font-medium text-indigo-200 mb-1">Tags (comma separated)</label>
+                        <label className="block text-sm font-semibold text-zinc-800 mb-1.5">Tags (comma separated)</label>
                         <input
                             type="text"
                             value={tagsString}
                             onChange={(e) => setTagsString(e.target.value)}
-                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-indigo-200/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                            className="w-full px-4 py-3 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 transition-all sm:text-sm"
                             placeholder="E.g., ideas, planning, goals"
                         />
                     </div>
 
-                    {/* Privacy Toggle */}
                     <div className="flex items-center">
                         <input
                             type="checkbox"
                             id="isPublic"
                             checked={isPublic}
                             onChange={(e) => setIsPublic(e.target.checked)}
-                            className="w-4 h-4 text-indigo-600 bg-white/5 border-white/10 rounded focus:ring-indigo-500 focus:ring-offset-slate-800"
+                            className="w-4 h-4 text-emerald-700 bg-zinc-50 border-zinc-200 rounded focus:ring-emerald-600 focus:ring-offset-2 focus:ring-offset-white"
                         />
-                        <label htmlFor="isPublic" className="ml-2 text-sm text-indigo-200">
+                        <label htmlFor="isPublic" className="ml-2.5 text-sm font-medium text-zinc-700 select-none">
                             Make this note public
                         </label>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex justify-end gap-3 pt-4">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-5 py-2.5 text-sm font-medium text-indigo-200 bg-transparent border border-white/10 rounded-xl hover:bg-white/5 transition-colors"
+                            className="px-5 py-2.5 text-sm font-semibold text-zinc-600 bg-transparent border border-zinc-200 rounded-xl hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-800 transition-all disabled:opacity-50"
+                            className="px-5 py-2.5 text-sm font-semibold text-white bg-emerald-700 rounded-xl hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-600 active:scale-[0.98] transition-all disabled:opacity-50"
                         >
                             {isSubmitting ? 'Posting...' : 'Post Inspiration'}
                         </button>
