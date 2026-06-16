@@ -7,6 +7,7 @@ import CreateNoteModal from '../components/CreateNoteModal';
 export default function Dashboard() {
     const [notes, setNotes] = useState<Note[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
@@ -32,6 +33,11 @@ export default function Dashboard() {
             console.log("Failed to delete note:", error);
             alert("Failed to delete note");
         }
+    };
+
+    const handleEditNote = (note: Note) => {
+        setEditingNote(note);
+        setIsModalOpen(true);
     };
 
     const handleLogout = () => {
@@ -140,7 +146,7 @@ export default function Dashboard() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {filteredNotes.map((note) => (
-                                <NoteCard key={note.id} note={note} onDelete={handleNoteDelete} />
+                                <NoteCard key={note.id} note={note} onDelete={handleNoteDelete} onEdit={handleEditNote} />
                             ))}
                         </div>
                     )}
@@ -220,8 +226,14 @@ export default function Dashboard() {
             {/* Modal component */}
             <CreateNoteModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                // MODIFY onClose: Clear the editing state when closing so the next "New Note" is blank
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setEditingNote(null);
+                }}
                 onSuccess={fetchNotes}
+                // ADD THIS LINE: Pass the current note data to the modal
+                editingNote={editingNote}
             />
         </div>
     );

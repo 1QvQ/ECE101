@@ -3,9 +3,10 @@ import type { Note } from '../api/notes';
 interface NoteCardProps {
     note: Note;
     onDelete: (id: string) => void;
+    onEdit: (note: Note) => void;
 }
 
-export default function NoteCard({ note, onDelete }: NoteCardProps) {
+export default function NoteCard({ note, onDelete, onEdit }: NoteCardProps) {
     // Prevent accidental clicks with a browser confirm modal
     const handleDeleteClick = () => {
         if (window.confirm(`Are you sure you want to delete the note "${note.title}"?`)) {
@@ -25,6 +26,19 @@ export default function NoteCard({ note, onDelete }: NoteCardProps) {
                             Private
                         </span>
                     )}
+
+                    {/* Edit Button (Shows on hover) */}
+                    <button
+                        onClick={() => onEdit(note)}
+                        className="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-emerald-600 transition-all duration-200 p-1 rounded-md hover:bg-emerald-50"
+                        aria-label="Edit Note"
+                    >
+                        {/* Minimalist SVG Pencil Icon */}
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+
                     {/* Delete button - added button */}
                     <button
                         onClick={handleDeleteClick}

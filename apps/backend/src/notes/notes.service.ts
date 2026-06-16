@@ -49,8 +49,34 @@ export class NotesService {
     return `This action returns a #${id} note`;
   }
 
-  update(id: number, updateNoteDto: UpdateNoteDto) {
-    return `This action updates a #${id} note`;
+  async update(id: string, authorId: string, updateData: any) {
+    const note = await prisma.note.findUnique({
+      where: { id: id },
+    });
+
+    if (!note) {
+      throw new NotFoundException("Note not found");
+    }
+
+    if (note.authorId !== authorId) {
+      throw new ForbiddenException("You do not have permission to update this note");
+    }
+
+    const { tags, ...restData } = updateData;
+    const prismaUpdateData: any = { ...restData }
+    if (tags && Array.isArray(tags)) {
+      prismaUpdateData.tags = {
+        set: [],
+        connectOrCreate: tags.map((tagName: string) => ({
+          where: { name: tagName },
+          create: { name: tagName },
+        })),
+      };
+    }
+    return await prisma.note.update({
+      where: { id: id },
+      data: prismaUpdateData,
+    });
   }
 
   async remove(id: string, authorId: string) {

@@ -40,8 +40,13 @@ export class NotesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNoteDto: UpdateNoteDto) {
-    return this.notesService.update(+id, updateNoteDto);
+  update(@Param('id') id: string, @Body() updateNoteDto: any, @Request() req) {
+    const userId = req.user.sub || req.user.userId || req.user.id;
+
+    if (!userId) {
+      throw new Error("Unauthorised: Cannot find User ID");
+    }
+    return this.notesService.update(id, userId, updateNoteDto)
   }
 
   @Delete(':id')

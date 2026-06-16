@@ -41,4 +41,10 @@ export const notesApi = {
         const response = await apiClient.delete(`/notes/${id}`);
         return response.data;
     },
+
+    // Update notes
+    updateNote: async (id: string, updateData: Omit<Partial<Note>, 'tags'> & { tags?: string[] }): Promise<Note> => {
+        const response = await apiClient.patch(`/notes/${id}`, updateData);
+        return response.data;
+    },
 };
