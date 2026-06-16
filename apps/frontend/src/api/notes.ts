@@ -8,7 +8,7 @@ export interface Tag {
 }
 // need to fix tags to be array of strings
 export interface Note {
-    id: number;
+    id: string;
     title: string;
     content: string;
     isPublic: boolean;
@@ -34,5 +34,11 @@ export const notesApi = {
     createNote: async (data: CreateNotePayload): Promise<Note[]> => {
         const response = await apiClient.post('/notes', data);
         return response.data;
-    }
+    },
+
+    // Delete notes
+    deleteNote: async (id: string): Promise<void> => {
+        const response = await apiClient.delete(`/notes/${id}`);
+        return response.data;
+    },
 };

@@ -23,6 +23,17 @@ export default function Dashboard() {
         fetchNotes();
     }, [fetchNotes]);
 
+    // Handle delete action
+    const handleNoteDelete = async (id: string) => {
+        try {
+            await notesApi.deleteNote(id);
+            fetchNotes();
+        } catch (error) {
+            console.log("Failed to delete note:", error);
+            alert("Failed to delete note");
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem('access_token');
         window.location.href = '/login';
@@ -31,11 +42,11 @@ export default function Dashboard() {
     // Filter notes based on search query and selected tag
     const filteredNotes = useMemo(() => {
         return notes.filter(note => {
-            const matchesSearch = searchQuery === '' || 
-                note.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            const matchesSearch = searchQuery === '' ||
+                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 note.content.toLowerCase().includes(searchQuery.toLowerCase());
-            
-            const matchesTag = !selectedTag || 
+
+            const matchesTag = !selectedTag ||
                 note.tags?.some(tag => tag.name === selectedTag);
 
             return matchesSearch && matchesTag;
@@ -129,7 +140,7 @@ export default function Dashboard() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {filteredNotes.map((note) => (
-                                <NoteCard key={note.id} note={note} />
+                                <NoteCard key={note.id} note={note} onDelete={handleNoteDelete} />
                             ))}
                         </div>
                     )}
@@ -170,11 +181,10 @@ export default function Dashboard() {
                                         <button
                                             key={tag.name}
                                             onClick={() => setSelectedTag(tag.name === selectedTag ? null : tag.name)}
-                                            className={`text-xs px-2.5 py-1 rounded-lg font-medium border transition-all ${
-                                                tag.name === selectedTag
-                                                    ? 'bg-emerald-700 border-emerald-700 text-white shadow-sm'
-                                                    : 'bg-zinc-100 border-zinc-200/50 text-zinc-700 hover:bg-zinc-200'
-                                            }`}
+                                            className={`text-xs px-2.5 py-1 rounded-lg font-medium border transition-all ${tag.name === selectedTag
+                                                ? 'bg-emerald-700 border-emerald-700 text-white shadow-sm'
+                                                : 'bg-zinc-100 border-zinc-200/50 text-zinc-700 hover:bg-zinc-200'
+                                                }`}
                                         >
                                             #{tag.name} ({tag.count})
                                         </button>
