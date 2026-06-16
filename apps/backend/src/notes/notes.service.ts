@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { PrismaClient } from '@prisma/client';
@@ -53,7 +53,22 @@ export class NotesService {
     return `This action updates a #${id} note`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} note`;
+  async remove(id: string, authorId: string) {
+    const note = await prisma.note.findUnique({
+      where: { id: id },
+    });
+
+    if (!note) {
+      throw new NotFoundException(`Note not found`);
+    }
+    if (note.authorId !== authorId) {
+      throw new ForbiddenException(`You do not have permission to delete this note`);
+    }
+
+    await prisma.note.delete({
+      where: { id: id },
+    });
+
+    return { message: "Note successfully deleted." }
   }
 }

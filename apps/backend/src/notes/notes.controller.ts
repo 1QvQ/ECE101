@@ -45,7 +45,12 @@ export class NotesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.notesService.remove(+id);
+  remove(@Param('id') id: string, @Request() req) {
+    const userId = req.user.sub || req.user.userId || req.user.id;
+
+    if (!userId) {
+      throw new Error("Unauthorised: Cannot find User ID");
+    }
+    return this.notesService.remove(id, userId);
   }
 }
