@@ -25,8 +25,31 @@ model User {
   role           String   @default("TEACHER") 
   centerId       String?  
   center         Center?  @relation(fields: [centerId], references: [id])
+  notes          Note[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   @@index([centerId]) 
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  isPublic  Boolean  @default(false)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  tags      Tag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  notes     Note[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
