@@ -8,8 +8,14 @@ import { ActivitiesModule } from './activities/activities.module';
 import { FavouritesModule } from './favourites/favourites.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, NotesModule, ActivitiesModule, FavouritesModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    NotesModule,
+    ActivitiesModule,
+    FavouritesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

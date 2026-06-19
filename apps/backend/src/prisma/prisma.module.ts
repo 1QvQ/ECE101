@@ -3,7 +3,7 @@ import { PrismaService } from './prisma.service';
 
 @Global() // making it global so auth can use it
 @Module({
-    providers: [PrismaService],
-    exports: [PrismaService],
+  providers: [PrismaService],
+  exports: [PrismaService],
 })
-export class PrismaModule { }
+export class PrismaModule {}

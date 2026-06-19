@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { NotesService } from './notes.service';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
@@ -9,7 +19,7 @@ import { AuthGuard } from '@nestjs/passport';
 @UseGuards(AuthGuard('jwt'))
 @Controller('notes')
 export class NotesController {
-  constructor(private readonly notesService: NotesService) { }
+  constructor(private readonly notesService: NotesService) {}
 
   @Post()
   create(@Body() createNoteDto: CreateNoteDto, @Request() req) {
@@ -18,7 +28,7 @@ export class NotesController {
 
     // if userId is not extracted, throw an error
     if (!userId) {
-      throw new Error("Critical Error: Cannot extract User ID from JWT!");
+      throw new Error('Critical Error: Cannot extract User ID from JWT!');
     }
 
     return this.notesService.create(createNoteDto, userId);
@@ -29,7 +39,7 @@ export class NotesController {
     const userId = req.user.sub || req.user.userId || req.user.id;
 
     if (!userId) {
-      throw new Error("Unauthorised: Cannot find User ID");
+      throw new Error('Unauthorised: Cannot find User ID');
     }
     return this.notesService.findAll(userId);
   }
@@ -44,9 +54,9 @@ export class NotesController {
     const userId = req.user.sub || req.user.userId || req.user.id;
 
     if (!userId) {
-      throw new Error("Unauthorised: Cannot find User ID");
+      throw new Error('Unauthorised: Cannot find User ID');
     }
-    return this.notesService.update(id, userId, updateNoteDto)
+    return this.notesService.update(id, userId, updateNoteDto);
   }
 
   @Delete(':id')
@@ -54,7 +64,7 @@ export class NotesController {
     const userId = req.user.sub || req.user.userId || req.user.id;
 
     if (!userId) {
-      throw new Error("Unauthorised: Cannot find User ID");
+      throw new Error('Unauthorised: Cannot find User ID');
     }
     return this.notesService.remove(id, userId);
   }

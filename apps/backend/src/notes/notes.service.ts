@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateNoteDto } from './dto/create-note.dto';
 import { UpdateNoteDto } from './dto/update-note.dto';
 import { PrismaClient } from '@prisma/client';
@@ -9,12 +13,15 @@ const prisma = new PrismaClient();
 export class NotesService {
   async create(createNoteDto: CreateNoteDto, authorId) {
     const { title, content, tags, isPublic } = createNoteDto;
-    const tagsOperation = tags && tags.length > 0 ? ({
-      connectOrCreate: tags.map((tagName) => ({
-        where: { name: tagName },
-        create: { name: tagName },
-      }))
-    }) : undefined;
+    const tagsOperation =
+      tags && tags.length > 0
+        ? {
+            connectOrCreate: tags.map((tagName) => ({
+              where: { name: tagName },
+              create: { name: tagName },
+            })),
+          }
+        : undefined;
 
     return await prisma.note.create({
       data: {
@@ -29,8 +36,8 @@ export class NotesService {
       },
       include: {
         tags: true,
-      }
-    })
+      },
+    });
   }
 
   async findAll(authorId: string) {
@@ -55,15 +62,17 @@ export class NotesService {
     });
 
     if (!note) {
-      throw new NotFoundException("Note not found");
+      throw new NotFoundException('Note not found');
     }
 
     if (note.authorId !== authorId) {
-      throw new ForbiddenException("You do not have permission to update this note");
+      throw new ForbiddenException(
+        'You do not have permission to update this note',
+      );
     }
 
     const { tags, ...restData } = updateData;
-    const prismaUpdateData: any = { ...restData }
+    const prismaUpdateData: any = { ...restData };
     if (tags && Array.isArray(tags)) {
       prismaUpdateData.tags = {
         set: [],
@@ -88,13 +97,15 @@ export class NotesService {
       throw new NotFoundException(`Note not found`);
     }
     if (note.authorId !== authorId) {
-      throw new ForbiddenException(`You do not have permission to delete this note`);
+      throw new ForbiddenException(
+        `You do not have permission to delete this note`,
+      );
     }
 
     await prisma.note.delete({
       where: { id: id },
     });
 
-    return { message: "Note successfully deleted." }
+    return { message: 'Note successfully deleted.' };
   }
 }

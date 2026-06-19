@@ -14,9 +14,9 @@ import { JwtStrategy } from './jwt.strategy';
       secret: 'my-secret-key',
       // JWT token will expire in 24 hours
       signOptions: { expiresIn: '1d' },
-    })
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

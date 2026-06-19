@@ -1,34 +1,59 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Query,
+} from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
+import { AuthGuard } from '@nestjs/passport';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 
 @Controller('activities')
+@UseGuards(AuthGuard('jwt'))
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
+  // POST/ create activities
   @Post()
-  create(@Body() createActivityDto: CreateActivityDto) {
-    return this.activitiesService.create(createActivityDto);
+  create(@Req() req, @Body() createActivityDto: any) {
+    const userId = req.user?.userId || req.user?.id || req.user?.sub;
+    return this.activitiesService.create(userId, createActivityDto);
   }
 
+  // GET/ find all activities (by theme or age group if provided)
   @Get()
-  findAll() {
-    return this.activitiesService.findAll();
+  findAll(
+    @Query('theme') theme?: string,
+    @Query('ageGroup') ageGroup?: string,
+  ) {
+    return this.activitiesService.findAll(theme, ageGroup);
   }
 
+  // GET/ find all activities by user
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.activitiesService.findOne(+id);
+  findOne(@Param('id') id: string, @Req() req) {
+    const userId = req.user?.userId || req.user?.id || req.user?.sub;
+    return this.activitiesService.findOne(id, userId);
   }
 
+  // PATCH/ updates a specific activity by id
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateActivityDto: UpdateActivityDto) {
-    return this.activitiesService.update(+id, updateActivityDto);
+  update(@Param('id') id: string, @Req() req, @Body() updateActivityDto: any) {
+    const userId = req.user?.userId || req.user?.id || req.user?.sub;
+    return this.activitiesService.update(id, userId, updateActivityDto);
   }
 
+  // DELETE/ deletes a specific activity by id
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.activitiesService.remove(+id);
+  remove(@Param('id') id: string, @Req() req) {
+    const userId = req.user?.userId || req.user?.id || req.user?.sub;
+    return this.activitiesService.remove(id, userId);
   }
 }

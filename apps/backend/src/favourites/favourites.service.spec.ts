@@ -1,12 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FavouritesService } from './favourites.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 describe('FavouritesService', () => {
   let service: FavouritesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FavouritesService],
+      providers: [
+        FavouritesService,
+        {
+          provide: PrismaService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     service = module.get<FavouritesService>(FavouritesService);
