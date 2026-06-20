@@ -14,7 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 
 @Controller('favourites')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard('jwt'))
 export class FavouritesController {
   constructor(private readonly favouritesService: FavouritesService) { }
 
