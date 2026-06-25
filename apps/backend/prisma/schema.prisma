@@ -18,16 +18,19 @@ model Center {
 
 model User {
   id             String   @id @default(uuid())
-  email          String   @unique
-  passwordHash   String   
+  email          String   @unique @db.VarChar(255)
+  passwordHash   String   @map("password_hash") @db.Text
   firstName      String
   lastName       String
   role           String   @default("TEACHER") 
   centerId       String?  
   center         Center?  @relation(fields: [centerId], references: [id])
   notes          Note[]
+  activities     Activity[]
+  favourites     Favourite[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  
 
   @@index([centerId]) 
 }
@@ -52,4 +55,42 @@ model Tag {
   notes     Note[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id          String   @id @default(uuid())
+  title       String   @db.VarChar(255)
+  description String?  @db.Text
+  ageGroup    String?  @map("age_group") @db.VarChar(50)   // e.g., "Toddlers", "3-4 years"
+  theme       String?  @db.VarChar(100)                    // e.g., "Ocean", "Matariki"
+  
+  // JSONB data type for flexible, unstructured data arrays
+  materials   Json     @default("[]") 
+  instructions Json    @default("[]")
+  
+  // Links this activity back to the Teacher (User) who created it
+  createdBy   String   @map("created_by")
+  user        User     @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt
+
+  @@map("activities")
+}
+
+model Favourite {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Identifies what was favorited: 'ACTIVITY', 'NOTE', or 'DOCUMENT'
+  resourceType String   @map("resource_type") @db.VarChar(50)
+  resourceId   String   @map("resource_id")
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Composite unique constraint
+  // Ensures a teacher cannot favorite the exact same activity twice
+  @@unique([userId, resourceType, resourceId])
+  @@map("favourites")
 }

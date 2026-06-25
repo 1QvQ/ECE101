@@ -1,4 +1,13 @@
-import { Controller, Post, Body, HttpStatus, HttpCode, Get, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  HttpCode,
+  Get,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -7,29 +16,31 @@ import { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
-    @Post('register')
-    async register(@Body() dto: RegisterDto): Promise<Omit<User, 'passwordHash'>> {
-        return this.authService.register(dto);
-    }
+  @Post('register')
+  async register(
+    @Body() dto: RegisterDto,
+  ): Promise<Omit<User, 'passwordHash'>> {
+    return this.authService.register(dto);
+  }
 
-    // Route for handling user authentication and issuing tokens
-    @Post('login')
-    @HttpCode(HttpStatus.OK) // Change default status code from 201 to 200, to indicate that user has logged in successfully and token has been issued
-    login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
-        return this.authService.login(loginDto);
-    }
+  // Route for handling user authentication and issuing tokens
+  @Post('login')
+  @HttpCode(HttpStatus.OK) // Change default status code from 201 to 200, to indicate that user has logged in successfully and token has been issued
+  login(@Body() loginDto: LoginDto): Promise<{ access_token: string }> {
+    return this.authService.login(loginDto);
+  }
 
-    // Access profile route
-    @UseGuards(AuthGuard('jwt'))
-    @Get('profile')
-    getProfile(@Request() req) {
-        // If the request reaches this line, it means the token was successfully verified.
-        //The JwtStrategy has automatically attached the decoded payload to 'req.user'
-        return {
-            message: "Access profile successfully",
-            user: req.user,
-        };
-    }
+  // Access profile route
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile')
+  getProfile(@Request() req) {
+    // If the request reaches this line, it means the token was successfully verified.
+    //The JwtStrategy has automatically attached the decoded payload to 'req.user'
+    return {
+      message: 'Access profile successfully',
+      user: req.user,
+    };
+  }
 }

@@ -1,6 +1,6 @@
 export class CreateNoteDto {
-    title!: string;
-    content!: string;
-    isPublic?: boolean;
-    tags?: string[];
+  title!: string;
+  content!: string;
+  isPublic?: boolean;
+  tags?: string[];
 }

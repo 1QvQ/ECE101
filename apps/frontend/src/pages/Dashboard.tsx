@@ -3,6 +3,8 @@ import type { Note } from '../api/notes';
 import { notesApi } from '../api/notes';
 import NoteCard from '../components/NoteCard';
 import CreateNoteModal from '../components/CreateNoteModal';
+import { getActivities } from '../api/activities';
+
 
 export default function Dashboard() {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -10,6 +12,26 @@ export default function Dashboard() {
     const [editingNote, setEditingNote] = useState<Note | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const [activities, setActivities] = useState<any[]>([]); // Use any for now, will refactor later
+    const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+
+    const fetchActivities = useCallback(async () => {
+        setIsLoadingActivities(true);
+        try {
+            const data = await getActivities();
+            if (Array.isArray(data)) {
+                setActivities(data);
+            } else {
+                console.error("Activities data is not an array:", data);
+                setActivities([]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch activities:", error);
+            setActivities([]);
+        } finally {
+            setIsLoadingActivities(false);
+        }
+    }, []);
 
     const fetchNotes = useCallback(async () => {
         try {
@@ -22,7 +44,8 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchNotes();
-    }, [fetchNotes]);
+        fetchActivities();
+    }, [fetchNotes, fetchActivities]);
 
     // Handle delete action
     const handleNoteDelete = async (id: string) => {
@@ -120,6 +143,23 @@ export default function Dashboard() {
                         <p className="text-zinc-500 text-sm mt-1.5 leading-relaxed">
                             Capture and reference pedagogical observations, transition ideas, and notes.
                         </p>
+                    </div>
+
+                    {/* Activity Library */}
+                    <div className="mt-12">
+                        <h2 className="text-2xl font-bold text-zinc-900 mb-6">Activity Library</h2>
+                        {isLoadingActivities ? (
+                            <p className="text-zinc-400">Loading activities...</p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {activities.map((act) => (
+                                    <div key={act.id} className="bg-white p-4 border border-zinc-200 rounded-xl shadow-sm">
+                                        <h3 className="font-semibold">{act.title}</h3>
+                                        <p className="text-sm text-zinc-500 mt-1">{act.theme}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Active Tag Indicator */}
