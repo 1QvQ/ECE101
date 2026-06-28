@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { NotesModule } from './notes/notes.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { FavouritesModule } from './favourites/favourites.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { FavouritesModule } from './favourites/favourites.module';
     NotesModule,
     ActivitiesModule,
     FavouritesModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
