@@ -130,7 +130,7 @@ pnpm prisma db push
 ### 6. Start the Development Servers
 From the root directory, start the development applications concurrently:
 ```bash
-# Start frontend client (Vite on http://localhost:5173)
+# Start frontend client (Vite on http://localhost:5533)
 pnpm dev:frontend
 
 # Start NestJS REST API (on http://localhost:3000)

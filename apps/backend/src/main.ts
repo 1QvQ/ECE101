@@ -10,7 +10,7 @@ async function bootstrap() {
 
   // Enable CORS to allow the frontend to make requests to the backend
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: 'http://localhost:5533',
     // Allow cookies and headers to be sent with requests
     credentials: true,
   });

@@ -3,7 +3,7 @@ import { apiClient } from './client';
 
 
 export interface Tag {
-    id: number;
+    id: string;
     name: string;
 }
 // need to fix tags to be array of strings
@@ -12,7 +12,7 @@ export interface Note {
     title: string;
     content: string;
     isPublic: boolean;
-    creatAt: string;
+    createdAt: string;
     tags: Tag[];
 }
 
@@ -31,7 +31,7 @@ export const notesApi = {
     },
 
     // Create new notes
-    createNote: async (data: CreateNotePayload): Promise<Note[]> => {
+    createNote: async (data: CreateNotePayload): Promise<Note> => {
         const response = await apiClient.post('/notes', data);
         return response.data;
     },

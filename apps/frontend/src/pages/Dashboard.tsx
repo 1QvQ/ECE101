@@ -1,280 +1,124 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Note } from '../api/notes';
 import { notesApi } from '../api/notes';
-import NoteCard from '../components/NoteCard';
-import CreateNoteModal from '../components/CreateNoteModal';
-import { getActivities } from '../api/activities';
-
+import { curatedActivities, upcomingMoments } from '../data/library';
+import Icon from '../components/Icon';
 
 export default function Dashboard() {
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingNote, setEditingNote] = useState<Note | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const [activities, setActivities] = useState<any[]>([]); // Use any for now, will refactor later
-    const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [query, setQuery] = useState('');
+  const navigate = useNavigate();
 
-    const fetchActivities = useCallback(async () => {
-        setIsLoadingActivities(true);
-        try {
-            const data = await getActivities();
-            if (Array.isArray(data)) {
-                setActivities(data);
-            } else {
-                console.error("Activities data is not an array:", data);
-                setActivities([]);
-            }
-        } catch (error) {
-            console.error("Failed to fetch activities:", error);
-            setActivities([]);
-        } finally {
-            setIsLoadingActivities(false);
-        }
-    }, []);
+  useEffect(() => {
+    notesApi.getAllNotes().then(setNotes).catch(() => setNotes([]));
+  }, []);
 
-    const fetchNotes = useCallback(async () => {
-        try {
-            const data = await notesApi.getAllNotes();
-            setNotes(data);
-        } catch (error) {
-            console.error('Failed to fetch notes:', error);
-        }
-    }, []);
+  const today = useMemo(() => new Intl.DateTimeFormat('en-NZ', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  }).format(new Date()), []);
 
-    useEffect(() => {
-        fetchNotes();
-        fetchActivities();
-    }, [fetchNotes, fetchActivities]);
+  const dailyIdea = curatedActivities[0];
 
-    // Handle delete action
-    const handleNoteDelete = async (id: string) => {
-        try {
-            await notesApi.deleteNote(id);
-            fetchNotes();
-        } catch (error) {
-            console.log("Failed to delete note:", error);
-            alert("Failed to delete note");
-        }
-    };
+  const handleSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (query.trim()) navigate(`/documents?q=${encodeURIComponent(query.trim())}`);
+  };
 
-    const handleEditNote = (note: Note) => {
-        setEditingNote(note);
-        setIsModalOpen(true);
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        window.location.href = '/login';
-    };
-
-    // Filter notes based on search query and selected tag
-    const filteredNotes = useMemo(() => {
-        return notes.filter(note => {
-            const matchesSearch = searchQuery === '' ||
-                note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                note.content.toLowerCase().includes(searchQuery.toLowerCase());
-
-            const matchesTag = !selectedTag ||
-                note.tags?.some(tag => tag.name === selectedTag);
-
-            return matchesSearch && matchesTag;
-        });
-    }, [notes, searchQuery, selectedTag]);
-
-    // Compute metrics
-    const stats = useMemo(() => {
-        const total = notes.length;
-        const publicCount = notes.filter(n => n.isPublic).length;
-        const privateCount = total - publicCount;
-        return { total, publicCount, privateCount };
-    }, [notes]);
-
-    // Extract unique tags and compute count
-    const uniqueTags = useMemo(() => {
-        const tagMap: Record<string, number> = {};
-        notes.forEach(note => {
-            note.tags?.forEach(tag => {
-                tagMap[tag.name] = (tagMap[tag.name] || 0) + 1;
-            });
-        });
-        return Object.entries(tagMap).map(([name, count]) => ({ name, count }));
-    }, [notes]);
-
-    return (
-        <div className="min-h-[100dvh] bg-zinc-50 text-zinc-900 font-sans pb-16 flex flex-col">
-            {/* Top Navigation Bar */}
-            <header className="sticky top-0 z-40 w-full bg-white border-b border-zinc-200 backdrop-blur-md bg-white/95">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <span className="text-xl font-extrabold tracking-tight text-emerald-800">ECE101</span>
-                        <div className="h-4 w-[1px] bg-zinc-200" />
-                        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Inspiration Vault</span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 active:scale-[0.98] transition-all"
-                        >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                            </svg>
-                            New Inspiration
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="px-4 py-2 text-zinc-600 hover:text-zinc-900 text-sm font-semibold rounded-xl border border-zinc-200 hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-200 active:scale-[0.98] transition-all"
-                        >
-                            Sign out
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            {/* Main Layout Grid */}
-            <main className="max-w-7xl mx-auto w-full px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1">
-                {/* Left Area - Notes Feed */}
-                <div className="col-span-12 lg:col-span-8 space-y-6">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-zinc-900">
-                            Inspiration Vault
-                        </h1>
-                        <p className="text-zinc-500 text-sm mt-1.5 leading-relaxed">
-                            Capture and reference pedagogical observations, transition ideas, and notes.
-                        </p>
-                    </div>
-
-                    {/* Activity Library */}
-                    <div className="mt-12">
-                        <h2 className="text-2xl font-bold text-zinc-900 mb-6">Activity Library</h2>
-                        {isLoadingActivities ? (
-                            <p className="text-zinc-400">Loading activities...</p>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {activities.map((act) => (
-                                    <div key={act.id} className="bg-white p-4 border border-zinc-200 rounded-xl shadow-sm">
-                                        <h3 className="font-semibold">{act.title}</h3>
-                                        <p className="text-sm text-zinc-500 mt-1">{act.theme}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Active Tag Indicator */}
-                    {selectedTag && (
-                        <div className="flex items-center gap-2.5 bg-emerald-50/50 border border-emerald-200/60 rounded-xl px-4 py-2 text-sm text-emerald-800">
-                            <span>Filtering by tag: <strong className="font-semibold">#{selectedTag}</strong></span>
-                            <button
-                                onClick={() => setSelectedTag(null)}
-                                className="text-xs font-bold text-emerald-700 hover:text-emerald-900 underline underline-offset-2"
-                            >
-                                Clear filter
-                            </button>
-                        </div>
-                    )}
-
-                    {filteredNotes.length === 0 ? (
-                        <div className="bg-white border border-zinc-200 rounded-xl p-16 text-center shadow-sm">
-                            <svg className="w-12 h-12 text-zinc-300 mx-auto mb-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                            <h3 className="text-base font-semibold text-zinc-950">No notes found</h3>
-                            <p className="text-zinc-500 text-sm mt-1">Try adjusting your filters or record a new inspiration above.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            {filteredNotes.map((note) => (
-                                <NoteCard key={note.id} note={note} onDelete={handleNoteDelete} onEdit={handleEditNote} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Right Area - Sidebar */}
-                <div className="col-span-12 lg:col-span-4 space-y-6">
-                    <div className="lg:sticky lg:top-24 space-y-6">
-                        {/* Search Filter widget */}
-                        <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm space-y-3">
-                            <label className="block text-sm font-semibold text-zinc-800">
-                                Search
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Filter by title or content..."
-                                    className="w-full pl-10 pr-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/10 focus:border-emerald-600 transition-all text-sm"
-                                />
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg className="h-5 w-5 text-zinc-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Tag index widget */}
-                        {uniqueTags.length > 0 && (
-                            <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm space-y-3">
-                                <h3 className="text-sm font-semibold text-zinc-800">
-                                    Filter by Tag
-                                </h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {uniqueTags.map(tag => (
-                                        <button
-                                            key={tag.name}
-                                            onClick={() => setSelectedTag(tag.name === selectedTag ? null : tag.name)}
-                                            className={`text-xs px-2.5 py-1 rounded-lg font-medium border transition-all ${tag.name === selectedTag
-                                                ? 'bg-emerald-700 border-emerald-700 text-white shadow-sm'
-                                                : 'bg-zinc-100 border-zinc-200/50 text-zinc-700 hover:bg-zinc-200'
-                                                }`}
-                                        >
-                                            #{tag.name} ({tag.count})
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Vault Stats Overview widget */}
-                        <div className="bg-white border border-zinc-200 rounded-xl p-6 shadow-sm space-y-4">
-                            <h3 className="text-sm font-semibold text-zinc-800">
-                                Vault Overview
-                            </h3>
-                            <div className="grid grid-cols-3 gap-2.5 pt-1">
-                                <div className="text-center p-2 bg-zinc-50 border border-zinc-100 rounded-lg">
-                                    <div className="text-xl font-bold text-zinc-900">{stats.total}</div>
-                                    <div className="text-[10px] font-semibold uppercase text-zinc-400 mt-0.5">Total</div>
-                                </div>
-                                <div className="text-center p-2 bg-zinc-50 border border-zinc-100 rounded-lg">
-                                    <div className="text-xl font-bold text-emerald-800">{stats.publicCount}</div>
-                                    <div className="text-[10px] font-semibold uppercase text-zinc-400 mt-0.5">Public</div>
-                                </div>
-                                <div className="text-center p-2 bg-zinc-50 border border-zinc-100 rounded-lg">
-                                    <div className="text-xl font-bold text-amber-800">{stats.privateCount}</div>
-                                    <div className="text-[10px] font-semibold uppercase text-zinc-400 mt-0.5">Private</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
-
-            {/* Modal component */}
-            <CreateNoteModal
-                isOpen={isModalOpen}
-                // MODIFY onClose: Clear the editing state when closing so the next "New Note" is blank
-                onClose={() => {
-                    setIsModalOpen(false);
-                    setEditingNote(null);
-                }}
-                onSuccess={fetchNotes}
-                // ADD THIS LINE: Pass the current note data to the modal
-                editingNote={editingNote}
-            />
+  return (
+    <div className="page-stack dashboard-page">
+      <section className="welcome-row reveal">
+        <div>
+          <p className="date-line">{today}</p>
+          <h1>Kia ora.</h1>
         </div>
-    );
+        <Link to="/knowledge?new=1" className="button button-secondary">
+          <Icon name="plus" size={18} /> Add a note
+        </Link>
+      </section>
+
+      <section className="ask-panel reveal reveal-delay-1" aria-labelledby="ask-heading">
+        <div className="ask-copy">
+          <span className="feature-icon"><Icon name="spark" size={21} /></span>
+          <h2 id="ask-heading">Search your knowledge</h2>
+        </div>
+        <form className="search-composer" onSubmit={handleSearch}>
+          <Icon name="search" size={21} />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Ask about MoE guidance, centre policy, or your notes…"
+            aria-label="Search teaching knowledge"
+          />
+          <button type="submit" aria-label="Search" disabled={!query.trim()}><Icon name="arrow" size={19} /></button>
+        </form>
+      </section>
+
+      <div className="dashboard-grid">
+        <section className="daily-card reveal reveal-delay-2" aria-labelledby="daily-heading">
+          <div className="section-heading-row">
+            <div>
+              <h2 id="daily-heading">{dailyIdea.title}</h2>
+            </div>
+            <span className="feature-icon"><Icon name="spark" size={22} weight="fill" /></span>
+          </div>
+          <p className="daily-description">{dailyIdea.description}</p>
+          <div className="meta-row">
+            <span><Icon name="clock" size={16} /> {dailyIdea.duration}</span>
+            <span>{dailyIdea.ageGroup}</span>
+            <span>{dailyIdea.theme}</span>
+          </div>
+          <div className="material-strip">
+            <small>Bring</small>
+            <div>{dailyIdea.materials.map((material) => <span key={material}>{material}</span>)}</div>
+          </div>
+          <Link className="text-link" to={`/activities?idea=${dailyIdea.id}`}>View the full activity <Icon name="arrow" size={16} /></Link>
+        </section>
+
+        <aside className="upcoming-panel reveal reveal-delay-3" aria-labelledby="upcoming-heading">
+          <div className="section-heading-row compact">
+            <div>
+              <h2 id="upcoming-heading">Coming up</h2>
+            </div>
+            <Icon name="calendar" size={21} />
+          </div>
+          <div className="moment-list">
+            {upcomingMoments.map((moment) => (
+              <article className="moment" key={moment.title}>
+                <time><strong>{moment.day}</strong><span>{moment.month}</span></time>
+                <div><h3>{moment.title}</h3><p>{moment.note}</p></div>
+              </article>
+            ))}
+          </div>
+          <Link className="text-link" to="/activities">Plan your next activity <Icon name="arrow" size={16} /></Link>
+        </aside>
+      </div>
+
+      <section className="recents-section reveal reveal-delay-3" aria-labelledby="recent-heading">
+        <div className="section-heading-row">
+          <div>
+            <h2 id="recent-heading">Pick up where you left off</h2>
+          </div>
+          <Link to="/knowledge" className="text-link">View all <Icon name="arrow" size={16} /></Link>
+        </div>
+        <div className="recent-grid">
+          {(notes.length ? notes.slice(0, 3) : [
+            { id: 'sample-1', title: 'Water play observations', content: 'Children negotiated turns and compared the capacity of different vessels.', isPublic: false, createdAt: '', tags: [{ id: '1', name: 'observation' }] },
+            { id: 'sample-2', title: 'Whānau night ideas', content: 'Invite families to contribute a favourite song, story or shared kai.', isPublic: true, createdAt: '', tags: [{ id: '2', name: 'whānau' }] },
+            { id: 'sample-3', title: 'Transition support', content: 'A visual first-then card and familiar song helped make pack-away time predictable.', isPublic: false, createdAt: '', tags: [{ id: '3', name: 'wellbeing' }] },
+          ]).map((note) => (
+            <article className="recent-note" key={note.id}>
+              <div className="note-topline">
+                <span className="note-glyph"><Icon name="book" size={18} /></span>
+                <span>{note.isPublic ? 'Shared' : 'Private note'}</span>
+              </div>
+              <h3>{note.title}</h3>
+              <p>{note.content}</p>
+              <div className="tag-row">{note.tags?.slice(0, 2).map((tag) => <span key={tag.id}>#{tag.name}</span>)}</div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 }
